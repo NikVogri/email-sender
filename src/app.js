@@ -40,7 +40,7 @@ app.get("/send-emails", async (req, res) => {
     const data = await getData();
     const emails = await getEmails();
     await sendEmail(data, emails);
-    res.status(200);
+    res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
