@@ -35,7 +35,7 @@ app.post("/add-email", async (req, res) => {
   }
 });
 
-app.get("/send-emails", async () => {
+app.get("/send-emails", async (req, res) => {
   try {
     const data = await getData();
     const emails = await getEmails();
