@@ -1,6 +1,12 @@
 const express = require("express");
 const app = express();
-const { checkIfUnique, addToList } = require("./helpers/database.js");
+const {
+  checkIfUnique,
+  addToList,
+  getEmails,
+  getData,
+} = require("./helpers/database.js");
+const { sendEmail } = require("./helpers/email.js");
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -26,6 +32,17 @@ app.post("/add-email", async (req, res) => {
     res
       .status(500)
       .json({ success: false, msg: "Server error, please try again later" });
+  }
+});
+
+app.get("/send-emails", async () => {
+  try {
+    const data = await getData();
+    const emails = await getEmails();
+    await sendEmail(data, emails);
+    res.status(200);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

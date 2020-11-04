@@ -20,7 +20,7 @@ connection.connect(function (err) {
 exports.checkIfUnique = async (email) => {
   return new Promise((resolve, reject) => {
     connection.query(
-      "SELECT * FROM email WHERE email = ?",
+      "SELECT * FROM email_list WHERE email = ?",
       [email],
       (err, result, fields) => {
         if (err) return reject(new Error(err.message));
@@ -32,9 +32,33 @@ exports.checkIfUnique = async (email) => {
 
 exports.addToList = async (email) => {
   return new Promise((resolve, reject) => {
-    connection.query("INSERT INTO email (email) VALUES (?)", [email], (err) => {
-      if (err) return reject(new Error(err.message));
-      resolve();
+    connection.query(
+      "INSERT INTO email_list (email) VALUES (?)",
+      [email],
+      (err) => {
+        if (err) return reject(new Error(err.message));
+        resolve();
+      }
+    );
+  });
+};
+
+exports.getData = async () => {
+  const query = `SELECT * FROM countries WHERE country = 'Slovenia'`;
+  return new Promise((resolve, reject) => {
+    connection.query(query, (err, results) => {
+      if (err) reject(new Error(err.message));
+      return resolve(results[results.length - 1]);
+    });
+  });
+};
+
+exports.getEmails = async () => {
+  const query = `SELECT * FROM email_list`;
+  return new Promise((resolve, reject) => {
+    connection.query(query, (err, results) => {
+      if (err) reject(new Error(err.message));
+      resolve(results.map((result) => result.email));
     });
   });
 };
