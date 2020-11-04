@@ -1,0 +1,18 @@
+{
+  "name": "virus-email-sender",
+  "version": "1.0.0",
+  "description": "send emails notifying users about the current status",
+  "main": "/src/app.js",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js"
+  },
+  "author": "Nik Vogrinec",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1",
+    "nodemailer": "^6.4.14"
+  }
+}
