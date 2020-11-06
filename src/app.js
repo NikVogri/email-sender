@@ -10,8 +10,10 @@ const { sendEmail } = require("./helpers/email.js");
 
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
+const cors = require("cors");
 
 app.use(express.json());
+app.use(cors());
 app.set("trust-proxy", 1);
 app.use(
   rateLimit({
