@@ -7,9 +7,19 @@ const {
   getData,
 } = require("./helpers/database.js");
 const { sendEmail } = require("./helpers/email.js");
-const PORT = process.env.PORT || 3000;
+
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
 
 app.use(express.json());
+app.set("trust-proxy", 1);
+app.use(
+  rateLimit({
+    windowMs: 60 * 1000,
+    max: 5,
+  })
+);
+app.use(helmet());
 
 app.post("/add-email", async (req, res) => {
   const { email } = req.body;
@@ -46,6 +56,7 @@ app.get("/send-emails", async (req, res) => {
   }
 });
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server started on port " + PORT);
 });

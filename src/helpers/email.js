@@ -35,7 +35,11 @@ exports.sendEmail = async (data, emails) => {
         `,
       };
 
-      sgMail.sendMultiple(msg);
+      if (process.env.NODE_ENV === "development") {
+        console.log("Emails sent...");
+      } else {
+        sgMail.sendMultiple(msg);
+      }
 
       resolve();
     } catch (err) {

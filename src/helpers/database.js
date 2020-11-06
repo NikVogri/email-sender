@@ -18,28 +18,22 @@ connection.connect(function (err) {
 });
 
 exports.checkIfUnique = async (email) => {
+  const query = "SELECT * FROM email_list WHERE email = ?";
   return new Promise((resolve, reject) => {
-    connection.query(
-      "SELECT * FROM email_list WHERE email = ?",
-      [email],
-      (err, result, fields) => {
-        if (err) return reject(new Error(err.message));
-        resolve(!result.length);
-      }
-    );
+    connection.query(query, [email], (err, result) => {
+      if (err) return reject(new Error(err.message));
+      resolve(!result.length);
+    });
   });
 };
 
 exports.addToList = async (email) => {
+  const query = "INSERT INTO email_list (email) VALUES (?)";
   return new Promise((resolve, reject) => {
-    connection.query(
-      "INSERT INTO email_list (email) VALUES (?)",
-      [email],
-      (err) => {
-        if (err) return reject(new Error(err.message));
-        resolve();
-      }
-    );
+    connection.query(query, [email], (err) => {
+      if (err) return reject(new Error(err.message));
+      resolve();
+    });
   });
 };
 
