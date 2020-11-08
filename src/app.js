@@ -5,6 +5,8 @@ const {
   addToList,
   getEmails,
   getData,
+  bindCountriesToEmail,
+  getCountryList,
 } = require("./helpers/database.js");
 const { sendEmail } = require("./helpers/email.js");
 
@@ -24,7 +26,7 @@ app.use(
 app.use(helmet());
 
 app.post("/add-email", async (req, res) => {
-  const { email } = req.body;
+  const { email, countries } = req.body;
 
   try {
     const uniqueEmail = await checkIfUnique(email);
@@ -36,11 +38,12 @@ app.post("/add-email", async (req, res) => {
     }
 
     await addToList(email);
+    await bindCountriesToEmail(email, countries);
+
     res
       .status(200)
       .json({ success: true, msg: "Email successfully added to our list" });
   } catch (err) {
-    console.log(err);
     res
       .status(500)
       .json({ success: false, msg: "Server error, please try again later" });
@@ -51,7 +54,18 @@ app.get("/send-emails", async (req, res) => {
   try {
     const data = await getData();
     const emails = await getEmails();
-    await sendEmail(data, emails);
+
+    for (let i = 0; i < emails.length; i++) {
+      let data = [];
+      const countryList = await getCountryList(emails[i].id);
+
+      for (let j = 0; j < countryList.length; j++) {
+        data.push(await getData(countryList[j].country));
+      }
+
+      await sendEmail(data, emails[i].email);
+    }
+
     res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

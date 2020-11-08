@@ -37,10 +37,50 @@ exports.addToList = async (email) => {
   });
 };
 
-exports.getData = async () => {
-  const query = `SELECT * FROM countries WHERE country = 'Slovenia'`;
+exports.bindCountriesToEmail = async (email, countries) => {
+  const query = `INSERT INTO email_country (country, email_id, created_at) VALUES ?`;
+  return new Promise(async (resolve, reject) => {
+    try {
+      const emailId = await getEmailId(email);
+      const queryData = countries.map((country) => [
+        country,
+        emailId,
+        new Date(),
+      ]);
+      connection.query(query, [queryData], (err, results, a) => {
+        if (err) return reject(new Error(err.message));
+        resolve();
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+const getEmailId = async (email) => {
+  const query = `SELECT * FROM email_list WHERE email = ?`;
   return new Promise((resolve, reject) => {
-    connection.query(query, (err, results) => {
+    connection.query(query, [email], (err, results) => {
+      if (err) reject(new Error(err.message));
+      resolve(results[0].id);
+    });
+  });
+};
+
+exports.getCountryList = async (emailId) => {
+  const query = `SELECT * FROM email_country WHERE email_id = ?`;
+  return new Promise((resolve, reject) => {
+    connection.query(query, [emailId], (err, results) => {
+      if (err) reject(new Error(err.message));
+      return resolve(results);
+    });
+  });
+};
+
+exports.getData = async (country) => {
+  const query = `SELECT * FROM countries WHERE country = ?`;
+  return new Promise((resolve, reject) => {
+    connection.query(query, [country], (err, results) => {
       if (err) reject(new Error(err.message));
       return resolve(results[results.length - 1]);
     });
@@ -52,7 +92,9 @@ exports.getEmails = async () => {
   return new Promise((resolve, reject) => {
     connection.query(query, (err, results) => {
       if (err) reject(new Error(err.message));
-      resolve(results.map((result) => result.email));
+      resolve(
+        results.map((result) => ({ email: result.email, id: result.id }))
+      );
     });
   });
 };

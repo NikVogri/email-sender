@@ -1,19 +1,34 @@
 const sgMail = require("@sendgrid/mail");
 require("dotenv").config();
 
-exports.sendEmail = async (data, emails) => {
+exports.sendEmail = async (data, email) => {
   return new Promise((resolve, reject) => {
     try {
       sgMail.setApiKey(process.env.SENDGRID_KEY);
 
+      let dataList = "";
+
+      data.forEach(
+        (val) =>
+          (dataList += `
+            <tr>
+              <td>${val.country}</td>
+              <td><strong>+${val.newCases}</strong></td>
+              <td>+${val.newDeaths}</td>
+              <td>${val.totalCases}</td>
+            </tr>
+      `)
+      );
+
       const msg = {
-        to: emails,
+        to: email,
         from: "tracker.virus2020@gmail.com",
-        subject: `Daily Virus Briefing ${data.created_at.toLocaleString()}`,
+        subject: `Daily Virus Briefing ${data[0].created_at.toLocaleString()}`,
         html: `
         <table>
           <thead>
             <tr>
+            <th>Country</th>
             <th>New Cases</th>
             <th>New Deaths</th>
             <th>Total Infected</th>
@@ -21,11 +36,7 @@ exports.sendEmail = async (data, emails) => {
           </thead>
 
           <tbody>
-            <tr>
-              <td><strong>+${data.newCases}</strong></td>
-              <td>+${data.newDeaths}</td>
-              <td>${data.totalCases}</td>
-            </tr>
+            ${dataList}
           </tbody>
         </table>
 
@@ -38,7 +49,7 @@ exports.sendEmail = async (data, emails) => {
       if (process.env.NODE_ENV === "development") {
         console.log("Emails sent...");
       } else {
-        sgMail.sendMultiple(msg);
+        sgMail.send(msg);
       }
 
       resolve();
